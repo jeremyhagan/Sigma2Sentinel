@@ -57,7 +57,7 @@ Where:
 - EntityIP_Address_Local: The Address identifier of an IP entity type with an instance suffix "Local"  
 
 ## To-do
-- Turn into an automation
+- Turn into a module
 - Work out licensing issues regarding Sigma rule use (https://github.com/SigmaHQ/Detection-Rule-License)
 - Work out how to link the Sentinel Support URL back to the repo link in SigmaHQ
 - Handle the potential for a GUID clash
