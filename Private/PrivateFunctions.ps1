@@ -706,23 +706,23 @@ function Read-Tactics {
         $SigmaYaml
     )
     $mitreAttackTacticsMapping = @{
-        collection                  = 'Collection';
-        command_and_control         = 'CommandAndControl';
-        credential_access           = 'CredentialAccess';
-        defense_evasion             = 'DefenseEvasion';
-        discover                    = 'Discovery';
-        execution                   = 'Execution';
-        exfiltration                = 'Exfiltration';
-        impact                      = 'Impact';
-        impair_process_control      = 'ImpairProcessControl';
-        inhibit_response_function   = 'InhibitResponseFunction';
-        initial_access              = 'InitialAccess';
-        lateral_movement            = 'LateralMovement';
-        persistence                 = 'Persistence';
-        pre_attack                  = 'PreAttack';
-        privilege_escalation        = 'PrivilegeEscalation';
-        reconnaissance              = 'Reconnaissance';
-        resource_development        = 'ResourceDevelopment'
+        'collection'                  = 'Collection';
+        'command-and-control'         = 'CommandAndControl';
+        'credential-access'           = 'CredentialAccess';
+        'defense-evasion'             = 'DefenseEvasion';
+        'discover'                    = 'Discovery';
+        'execution'                   = 'Execution';
+        'exfiltration'                = 'Exfiltration';
+        'impact'                      = 'Impact';
+        'impair-process-control'      = 'ImpairProcessControl';
+        'inhibit-response-function'   = 'InhibitResponseFunction';
+        'initial-access'              = 'InitialAccess';
+        'lateral-movement'            = 'LateralMovement';
+        'persistence'                 = 'Persistence';
+        'pre-attack'                  = 'PreAttack';
+        'privilege-escalation'        = 'PrivilegeEscalation';
+        'reconnaissance'              = 'Reconnaissance';
+        'resource-development'        = 'ResourceDevelopment'
     }
     $tactics = @()
     [array]$mitreTags = $SigmaYaml.tags | Where-Object {$_ -match "^attack\."}

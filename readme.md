@@ -62,27 +62,57 @@ Where:
 
 ## Usage
 
-### Verb-Noun
+### New-AzSentinelContentTemplateFromSigmaRule
 
-The `Verb-Noun` function ...
+The `New-AzSentinelContentTemplateFromSigmaRule` function provides the core functionality of the module. You pass either a path to a sigma YAML file, or a File object from Get-ChildItem. It will parse the XML and build a Sentinel Template.
+
+If the rule template doesn't already exist in the Sentinel workspace, it will create it.
+If the rule template exists, the function will use the date property of the sigma rule to see if it is updated. Sigma rules don't have version, but rule templates use them to see if the template is updated compared to any analytic rules created from it. This function will increment the Sentinel Template version if the sigma rule is newer when it updates it.
+If the date property is unchanged, the function will do nothing.
+
+Properties of the sigma rule used for comparisons are stored in the rule template description.
 
 #### Examples
 
 ```powershell
-
+New-AzSentinelContentTemplateFromSigmaRule -Path '.\sigma\rules\windows\registry\rule.yaml' `
+    -WorkspaceName sentinel -ResourceGroupName sentinel
 ```
-Example description
+The example above will add a template from the specified file in the supplied workspace using the current Az Context
 ```powershell
-
+Get-ChildItem .\sigma\rules\windows\process_creation | foreach {
+    New-AzSentinelContentTemplateFromSigmaRule -File $_ -WorkspaceName sentinel -ResourceGroupName sentinel
+}
 ```
-Example description
+
+### Remove-AzSentinelContentTemplate
+
+The `Remove-AzSentinelContentTemplate` allows you to remove any templates created in error. Malformed templates can be created which make all template invisible in the portal. You need to use Graph to remove them. This function allows you to delete a specific template by display name, or All user-defined templates. If no display name is provided, a list of template in the workspace is shown and the user is prompted to select one.
+
+#### Examples
 ```powershell
-
+Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" `
+    -SubscriptionId "SubscriptionId"
 ```
-Example description
+The example above will prompt for a rule to delete.
+
+OUTPUT
+```
+[1]: HackTool - Potential Impacket Lateral Movement Activity
+[2]: New Port Forwarding Rule Added Via Netsh.EXE
+Please select a rule template to delete:
+```
 ```powershell
-
+Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" -All
 ```
-Example description
+The example above will remove all templates. Use -Confirm:$false to avoid being prompted
+```powershell
+Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" `
+    -DisplayName "MyRuleName"
+```
+The example above will remove the specified rule template if it exists.
 
 ## Limitations and known issues
+- The module only supports the Kusto sigma backend and the microsoft_xdr pipeline.
+- If a sigma rule author doesn't generate a new GUID it is possible to have a GUID clash. In this case the winning rule is the last one written. To fix this, simple generate a new GUID for the rule with the clash.
+- The sigma rules in SigmaHQ are covered by the [Detection Rules License](https://github.com/SigmaHQ/Detection-Rule-License/blob/main/LICENSE.Detection.Rules.md). This implementation only complies with the first requirement of the license in that is retains the author of the rule in the Sentinel template description. The URL of the run in the SigmaHQ isn't part of the specification therefore the rules are not self-referential. I haven't worked out how to include the URL in the description yet. Finally, the DRL specifies that the author is included in the output of the detection (at least that is how I read it). I also haven't done that.
