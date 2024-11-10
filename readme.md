@@ -29,16 +29,16 @@ Run on a host with the following installed
 - Modules: [powershell-yaml](https://github.com/cloudbase/powershell-yaml), [Az.SecurityInsights](https://learn.microsoft.com/en-us/powershell/module/az.securityinsights/?view=azps-12.0.0), [AzExpression](https://github.com/SimonWahlin/AzExpression)
 - [Python](https://www.python.org/downloads/)
 - [sigma-cli](https://github.com/SigmaHQ/sigma-cli)
-- [The microsoft365defender sigma-cli backend](https://github.com/AttackIQ/pySigma-backend-microsoft365defender)
+- [The Kusto sigma-cli backend](https://github.com/AttackIQ/pySigma-backend-kusto)
 - a current logged in session (Connect-AzAccount)
 - a directory with sigma rules (clone of https://github.com/SigmaHQ/sigma)
-- write access to the target Sentinel workspace
+- write access to the target Sentinel workspace ([Sentinel Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#microsoft-sentinel-contributor))
 
 ## Setup
 1. Clone the SigmaHQ repo, or otherwise prepare a folder with Sigma YAML files in it
-2. Install a supported version of Python
+2. Install a supported version of Python (3.8+)
 3. Install the sigma-cli package `python -m pip install sigma-cli`
-4. Install the microsoft365defender sigma backend `sigma plugin install microsoft365defender`
+4. Install the microsoft365defender sigma backend `sigma plugin install kusto`
 5. Install the required modules listed above
 
 ## Entities
@@ -105,7 +105,7 @@ Please select a rule template to delete:
 ```powershell
 Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" -All
 ```
-The example above will remove all templates. Use -Confirm:$false to avoid being prompted
+The example above will remove all templates. Use `-Confirm:$false` to avoid being prompted
 ```powershell
 Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" `
     -DisplayName "MyRuleName"
