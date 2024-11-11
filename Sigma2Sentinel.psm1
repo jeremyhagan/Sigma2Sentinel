@@ -1,21 +1,22 @@
 <# --------------------------------------------------------------------------------------------------------------------------
 Author:     Jeremy Hagan
-Date:       2024-02-27
-Version:    1.1.0
+Date:       2024-11-11
+Version:    1.2.0
 Purpose:    Create a Sentinel Detection Rule (analytics) Templates from a sigma rule.
 
 Chlog:      
-    2024-11-10: Update for dependecy changes
-        - Microsoft Defender 365 backend breaking change. Name changed to Kusto and Microsoft 365 Defender moved to be a
-          pipeline of Kusto. Future pipelines appear to be in the works to support Windows Audit Logs.
-        - Sigma specification changed for MITRE ATT&CK Tactics. Underscores replaced with dashes.
-    2024-05-16: Fix issues:
-        - Add switch to ConvertTo-Json to handle unicode characters
-        - Add requires PowerShell core due to above
-        - Fix incorrect field name in entity mapping
-        - Parameterise Source name and URL
-    2024-05-13: Add a check to ensure that the sigma cli and backend actually 
-    returns a query
+    1.2.0   Change New-AzSentinelContentTemplateFromSigmaRule to Set-AzSentinelContentTemplateFromSigmaRule as a more
+            appropriate verb, since the function will create new rule and update an existing one
+    1.1.0   Update for dependecy changes
+                - Microsoft Defender 365 backend breaking change. Name changed to Kusto and Microsoft 365 Defender moved to
+                 be a pipeline of Kusto. Future pipelines appear to be in the works to support Windows Audit Logs.
+                - Sigma specification changed for MITRE ATT&CK Tactics. Underscores replaced with dashes.
+    1.0.2   Fix issues:
+                - Add switch to ConvertTo-Json to handle unicode characters
+                - Add requires PowerShell core due to above
+                - Fix incorrect field name in entity mapping
+                - Parameterise Source name and URL
+    1.0.1   Add a check to ensure that the sigma cli and backend actually returns a query
 -----------------------------------------------------------------------------------------------------------------------------
 #>
 #region Module Variables
