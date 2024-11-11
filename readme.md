@@ -6,7 +6,7 @@ The `Sigma2Sentinel` PowerShell module is designed to import Sigma rules into Se
 
 ## Features
 
-- **New-AzSentinelContentTemplateFromSigmaRule:** Main function to create Microsoft Sentinel analytic rule templates from sigma rules.  
+- **Set-AzSentinelContentTemplateFromSigmaRule:** Main function to create Microsoft Sentinel analytic rule templates from sigma rules.  
 Adds entities to the analytic rule template to allow you to quickly onboard the template into a rule.  
 Supports the following sigma [logsource](https://github.com/SigmaHQ/sigma-specification/blob/main/Sigma_specification.md#log-source) categories, as supported by the [microsof365defender](https://sigmahq.io/docs/digging-deeper/backends.html#microsoft365defender) sigma backend:
   - process_creation
@@ -62,9 +62,9 @@ Where:
 
 ## Usage
 
-### New-AzSentinelContentTemplateFromSigmaRule
+### Set-AzSentinelContentTemplateFromSigmaRule
 
-The `New-AzSentinelContentTemplateFromSigmaRule` function provides the core functionality of the module. You pass either a path to a sigma YAML file, or a File object from Get-ChildItem. It will parse the XML and build a Sentinel Template.
+The `Set-AzSentinelContentTemplateFromSigmaRule` function provides the core functionality of the module. You pass either a path to a sigma YAML file, or a File object from Get-ChildItem. It will parse the XML and build a Sentinel Template.
 
 If the rule template doesn't already exist in the Sentinel workspace, it will create it.
 If the rule template exists, the function will use the date property of the sigma rule to see if it is updated. Sigma rules don't have version, but rule templates use them to see if the template is updated compared to any analytic rules created from it. This function will increment the Sentinel Template version if the sigma rule is newer when it updates it.
@@ -75,13 +75,13 @@ Properties of the sigma rule used for comparisons are stored in the rule templat
 #### Examples
 
 ```powershell
-New-AzSentinelContentTemplateFromSigmaRule -Path '.\sigma\rules\windows\registry\rule.yaml' `
+Set-AzSentinelContentTemplateFromSigmaRule -Path '.\sigma\rules\windows\registry\rule.yaml' `
     -WorkspaceName sentinel -ResourceGroupName sentinel
 ```
 The example above will add a template from the specified file in the supplied workspace using the current Az Context
 ```powershell
 Get-ChildItem .\sigma\rules\windows\process_creation | foreach {
-    New-AzSentinelContentTemplateFromSigmaRule -File $_ -WorkspaceName sentinel -ResourceGroupName sentinel
+    Set-AzSentinelContentTemplateFromSigmaRule -File $_ -WorkspaceName sentinel -ResourceGroupName sentinel
 }
 ```
 
