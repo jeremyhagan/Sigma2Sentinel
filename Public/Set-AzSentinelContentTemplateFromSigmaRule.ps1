@@ -1,4 +1,4 @@
-function New-AzSentinelContentTemplateFromSigmaRule {
+function Set-AzSentinelContentTemplateFromSigmaRule {
     <#
         .SYNOPSIS
         Create a user defined Sentinel Alert Rule Template in a workspace.

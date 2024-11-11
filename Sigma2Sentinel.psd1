@@ -22,7 +22,7 @@
 
     # Functions to export from this module
     FunctionsToExport = @(
-        'New-AzSentinelContentTemplateFromSigmaRule',
+        'Set-AzSentinelContentTemplateFromSigmaRule',
         'Remove-AzSentinelContentTemplate'
     )
 
