@@ -4,7 +4,7 @@ Date:       2024-11-11
 Version:    1.2.0
 Purpose:    Create a Sentinel Detection Rule (analytics) Templates from a sigma rule.
 
-Chlog:      
+Chlog:
     1.2.0   Change New-AzSentinelContentTemplateFromSigmaRule to Set-AzSentinelContentTemplateFromSigmaRule as a more
             appropriate verb, since the function will create new rule and update an existing one
     1.1.0   Update for dependecy changes

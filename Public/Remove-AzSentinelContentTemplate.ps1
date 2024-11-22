@@ -2,12 +2,12 @@ function Remove-AzSentinelContentTemplate {
     <#
         .SYNOPSIS
         Delete user defined Sentinel Alert Rule Templates from a workspace.
-        
+
         .DESCRIPTION
         When run without any parameters, will prompt which template to remove.
         When run with the -All switch ALL templates will be removed.
         When run with a DisplayName only that template will be removed.
-        
+
         .PARAMETER WorkspaceName
         The name of the Azure Log Analytics workspace containing the rule(s) to connect to.
         .PARAMETER ResourceGroupName
@@ -18,7 +18,7 @@ function Remove-AzSentinelContentTemplate {
         If supplied, all user-defined rule template will be deleted.
         .PARAMETER DisplayName
         The DisplayName of the template to remove.
-            
+
         .EXAMPLE
         Remove-AzSentinelContentTemplate -WorkspaceName "WorkspaceName" -ResourceGroupName "ResourceGroupName" -SubscriptionId "SubscriptionId"
         The example above will prompt for a rule to delete.
@@ -40,7 +40,7 @@ function Remove-AzSentinelContentTemplate {
         [Parameter(Mandatory=$true)]
         [string]
         $WorkspaceName,
-        # The Azure Resource Group the workspace is in 
+        # The Azure Resource Group the workspace is in
         [Parameter(Mandatory=$true)]
         [string]
         $ResourceGroupName,
@@ -81,7 +81,7 @@ function Remove-AzSentinelContentTemplate {
     $uriStem = "https://management.azure.com/subscriptions/$subscriptionId/resourceGroups"
     $uriStem += "/$resourceGroupName/providers/Microsoft.OperationalInsights/workspaces"
     $uriStem += "/$WorkspaceName/providers/Microsoft.SecurityInsights"
-    
+
     $headers = @{Authorization="Bearer $($Token.Token)"}
     try {
         $CurrentTemplates = Invoke-RestMethod -Method GET -Uri ($uriStem + "/contentTemplates?api-version=2023-11-01") `

@@ -4,7 +4,7 @@ function Set-AzSentinelContentTemplate {
         # The Sentinel Workspace name
         [Parameter(Mandatory)]
         [string]$WorkspaceName,
-        # The Azure Resource Group the workspace is in 
+        # The Azure Resource Group the workspace is in
         [Parameter(Mandatory)]
         [string]$ResourceGroupName,
         # Subscription name
@@ -67,13 +67,13 @@ function Set-AzSentinelContentTemplate {
     else {
         $uniqueString = (pwsh.exe -command {New-AzUniqueString "$ContentId-$contentKind-$ContentId-$Version"})
     }
-    
+
     $contentProductId = "$ContentId-ar-$uniqueString"
     Write-Verbose "Content product Id = $contentProductId"
     $source = @{kind = "LocalWorkspace"; name = $SourceName}
     $contentSchemaVersion = '3.0.0'
     $packageKind = 'Standalone'
-    
+
     # Build the request body
     $body = @{
         "properties" = @{
@@ -120,9 +120,9 @@ function Set-AzSentinelContentTemplate {
 function Build-AzSetinelAlertRuleTemplateArmDocument {
     <#
     Build an ARM template to be passed with the Content Template - Install REST API.
-    For full specs of the REST API see: 
+    For full specs of the REST API see:
     https://learn.microsoft.com/en-us/rest/api/securityinsights/content-template/install?view=rest-securityinsights-2023-11-01&tabs=HTTP
-    For full specs of the ARM template see: 
+    For full specs of the ARM template see:
     https://learn.microsoft.com/en-us/azure/templates/microsoft.securityinsights/alertrules?pivots=deployment-language-arm-template
     https://learn.microsoft.com/en-us/azure/templates/microsoft.securityinsights/metadata?pivots=deployment-language-arm-template
     NOTE: This builder only supports Scheduled Alert Rules, not NRT since the Schema differs
@@ -161,7 +161,7 @@ function Build-AzSetinelAlertRuleTemplateArmDocument {
         )]
         [string]
         $Severity,
-        # Source type of the content. Must always contain 'kind' with limited values supported 
+        # Source type of the content. Must always contain 'kind' with limited values supported
         [Parameter(Mandatory)]
         [hashtable]
         $SourceType,
@@ -332,11 +332,11 @@ function Update-QueryWithEntityMappingColumns {
             $query += "`n`tEntityFileHash_Value = SHA256"
             # Modify the Process Entity fields created in the common section.
             $query = $query.Replace("EntityProcess_ProcessId = InitiatingProcessId", "EntityProcess_ProcessId = ProcessId")
-            $query = $query.Replace("EntityProcess_CommandLine = InitiatingProcessCommandLine", 
+            $query = $query.Replace("EntityProcess_CommandLine = InitiatingProcessCommandLine",
                 "EntityProcess_CommandLine = ProcessCommandLine")
-            $query = $query.Replace("EntityProcess_ElevationToken = InitiatingProcessTokenElevation", 
+            $query = $query.Replace("EntityProcess_ElevationToken = InitiatingProcessTokenElevation",
                 "EntityProcess_ElevationToken = ProcessTokenElevation")
-            $query = $query.Replace("EntityProcess_CreationTimeUtc = InitiatingProcessParentCreationTime", 
+            $query = $query.Replace("EntityProcess_CreationTimeUtc = InitiatingProcessParentCreationTime",
                 "EntityProcess_CreationTimeUtc = ProcessCreationTime")
         }
         'DeviceRegistryEvents' {
@@ -651,7 +651,7 @@ function New-Description {
     $description += "`n`nSigma ID: $($yaml.id)"
     $description += "`nSigma Date: $($yaml.date)"
     $description += "`nSigma Status: $($yaml.status)"
-    
+
     # Add details from the falsepositives to the description if they exist
     if ($null -ne $yaml.falsepositives -and $yaml.falsepositives[0] -ne "Unknown")
     {
@@ -676,8 +676,8 @@ function New-Severity {
         $SigmaYaml
     )
     # The sigma spec lists severities of critical, high, medium, low and informational, but the Analytic Rule accepts only
-    # High, Medium, Low, and Informational. The below code sets both criticial and high to High and defaults to Ucasing the 
-    # first letter otherwise. If sigma changes their spec and these no longer align then the Severity of the rule will be 
+    # High, Medium, Low, and Informational. The below code sets both criticial and high to High and defaults to Ucasing the
+    # first letter otherwise. If sigma changes their spec and these no longer align then the Severity of the rule will be
     # listed as Unknown in the Sentinel template and the user can chose something when they enable it.
     switch ($yaml.level)
     {

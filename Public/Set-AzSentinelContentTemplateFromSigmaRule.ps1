@@ -2,10 +2,10 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
     <#
         .SYNOPSIS
         Create a user defined Sentinel Alert Rule Template in a workspace.
-        
+
         .DESCRIPTION
         Create a user defined Sentinel Alert Rule Template in a workspace from a supplied sigma rule.
-        
+
         .PARAMETER File
         A File object returned by Get-Item. Used when running in a loop to create multiple rules
         .PARAMETER Path
@@ -26,7 +26,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
 
         .EXAMPLE
         PS> New-AzSentinelContentTemplateFromSigmaRule -Path '.\sigma\rules\windows\registry\rule.yaml' `
-            -WorkspaceName sentinel -ResourceGroupName sentinel 
+            -WorkspaceName sentinel -ResourceGroupName sentinel
         The example above will add a template from the specified file in the supplied workspace using the current Az Context
         .EXAMPLE
         PS> Get-ChildItem .\sigma\rules\windows\process_creation | foreach {
@@ -48,7 +48,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
         [Parameter(Mandatory)]
         [string]
         $WorkspaceName,
-        # The Azure Resource Group the workspace is in 
+        # The Azure Resource Group the workspace is in
         [Parameter(Mandatory)]
         [string]
         $ResourceGroupName,
@@ -130,25 +130,25 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
     $addRuleToSentinel = $false
     $yaml = ConvertFrom-Yaml (Get-Content $File -raw)
     # Only process the rules types applicable to the microsoft_defender backend
-    if ($yaml.logsource.product -eq "windows" -and 
+    if ($yaml.logsource.product -eq "windows" -and
         $supportedCategories -contains $yaml.logsource.category
     ) {
         Write-Verbose "$($File.Name) is supported by sigma engine. Proecessing"
-        
+
         # Determine if this is a rule we already have in Sentinel
         if ($CurrentTemplates.value.name -contains $yaml.id) {
             # if we get here then the rule already exists, so we need to determine if it needs updating
             Write-Verbose "Sigma rule $($yaml.title) already exists. Checking for updates."
             $existingTemplate = $CurrentTemplates.value | Where-Object {$_.name -eq $yaml.id}
             $existingVersion = [version]$existingTemplate.properties.version
-            
+
             if ($null -eq $existingTemplate.properties.lastPublishDate -and $null -ne $yaml.modified) {
                 Write-Verbose "Sigma rule was updated on $($yaml.modified) and the existing template has never been updated."
                 $addRuleToSentinel = $true
                 $version = [version]::New(
                     $existingVersion.Major, $existingVersion.Minor, $existingVersion.Build + 1).ToString()
             }
-            if ($null -ne $yaml.modified -and 
+            if ($null -ne $yaml.modified -and
                 (Get-Date $yaml.modified) -gt (Get-Date $existingTemplate.properties.lastPublishDate))
             {
                 Write-Verbose "The Sigma rule modified date is newer than the Sentinel template lastModified date."
@@ -176,7 +176,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
                 $description = New-Description -SigmaYaml $yaml
                 $tactics = Read-Tactics -SigmaYaml $yaml
                 $techniques = Read-Techniques -SigmaYaml $yaml
-                
+
                 # Process items which are specific to the chosen sigma backend. Specifically the entity mapping and the data sources
                 $table = ($query -split '\|')[0].Trim()
                 switch ($SigmaPipeline) {
@@ -198,7 +198,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
                     Severity = $severity;
                     SourceType = @{kind="LocalWorkspace";name=$SourceName};
                 }
-                
+
                 # Build the parameters for the API call.
                 $ApiParams = @{
                     WorkspaceName = $WorkspaceName;
@@ -231,12 +231,12 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
 
                 $armTemplate = Build-AzSetinelAlertRuleTemplateArmDocument @ArmParams
                 $ApiParams.Add('ArmTemplate', $armTemplate)
-                
+
                 try {
                     $response = Set-AzSentinelContentTemplate @ApiParams
                     Write-Verbose $response
                     Write-Output "$Action content template: $($ApiParams.DisplayName)."
-                    
+
                 }
                 catch {
                     $exception = $_
