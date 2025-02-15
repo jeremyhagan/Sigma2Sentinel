@@ -10,12 +10,12 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
         A File object returned by Get-Item. Used when running in a loop to create multiple rules
         .PARAMETER Path
         The path to a sigma YAML file
-        .PARAMETER WorkapceName
+        .PARAMETER WorkspaceName
         The name of the Log Analytics workspace containing your Sentinel instance
         .PARAMETER ResourceGroupName
         The name of the Resource Group containing the workspace
         .PARAMETER SubscriptionId
-        The name of the Azure subscription continaing the resource group. If not supplied, uses the subscription if from the
+        The name of the Azure subscription containing the resource group. If not supplied, uses the subscription if from the
         current Az Context
         .PARAMETER SigmaBackend
         The name of the sigma backend to use. Defaults to 'kusto' which is the only supported option presently.
@@ -64,7 +64,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
         [Parameter()]
         [string]
         $SigmaPipeline = "microsoft_xdr",
-        # The source name disaplyed in the list of rule templates in Sentinel. EG: SigmaHQ
+        # The source name displayed in the list of rule templates in Sentinel. EG: SigmaHQ
         [Parameter()]
         [string]
         $SourceName = "Sigma Rule",
@@ -98,13 +98,15 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
     if ([string]::IsNullOrEmpty($SubscriptionId)) {
         try {
             $SubscriptionId = (Get-AzContext).Subscription.Id
+            Write-Verbose "Using subscription ID: $SubscriptionId"
         }
         catch {
-            Throw "Unable to determinie Subscription Id from Context. Please supply a valid subscription"
+            Throw "Unable to determine Subscription Id from Context. Please supply a valid subscription"
         }
     } else {
         try {
-            Set-AzContext -Subscription $SubscriptionId
+            $context = Set-AzContext -Subscription $SubscriptionId
+            Write-Verbose $context
         }
         catch {
             Throw "The supplied subscription ID is not a valid subscription for the currently logged in user"
@@ -118,22 +120,42 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
 
     #region main
     # Get all existing detection rules
-    $CurrentTemplates = Invoke-RestMethod -Method GET -Uri ($uriStem + "/contentTemplates?api-version=2024-03-01") `
-        -Headers $headers
+    try {
+        $CurrentTemplates = Invoke-RestMethod -Method GET -Uri ($uriStem + "/contentTemplates?api-version=2024-03-01") `
+            -Headers $headers
+    }
+    catch {
+        Throw "Failed to get existing templates. $_"
+    }
 
     # if the Path variable was supplied, then get a handle on the file.
     if (-not [string]::IsNullOrEmpty($Path)) {
-        $File = Get-Item $Path -ErrorAction:Stop
+        try {
+            $File = Get-Item $Path -ErrorAction:Stop
+            Write-Verbose "Got handle on $($File.Name)"
+        }
+        catch {
+            Throw "Failed to get file. $_"
+        }
     }
 
     # Assume the sigma rule is already present and doesn't need updating
     $addRuleToSentinel = $false
-    $yaml = ConvertFrom-Yaml (Get-Content $File -raw)
-    # Only process the rules types applicable to the microsoft_defender backend
+
+    # Convert file contents to YAML
+    try {
+        $yaml = ConvertFrom-Yaml (Get-Content $File -raw -ErrorAction Stop) -ErrorAction Stop
+        Write-Verbose "Converted $($File.Name) to YAML"
+    }
+    catch {
+        Throw "Failed to convert YAML to object. $_"
+    }
+
+    # Only process the rules types applicable to the kusto/microsoft_xdr backend
     if ($yaml.logsource.product -eq "windows" -and
         $supportedCategories -contains $yaml.logsource.category
     ) {
-        Write-Verbose "$($File.Name) is supported by sigma engine. Proecessing"
+        Write-Verbose "$($File.Name) is supported by sigma engine. Processing"
 
         # Determine if this is a rule we already have in Sentinel
         if ($CurrentTemplates.value.name -contains $yaml.id) {
@@ -171,6 +193,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
             $query = sigma.exe convert -t $SigmaBackend -p $SigmaPipeline -f default $File.FullName
             if ($null -ne $query)
             {
+                Write-Verbose "Kusto query successfully extracted from sigma rule:`n$query"
                 $query = $query -join "`n"
                 $severity = New-Severity -SigmaYaml $yaml
                 $description = New-Description -SigmaYaml $yaml
@@ -181,6 +204,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
                 $table = ($query -split '\|')[0].Trim()
                 switch ($SigmaPipeline) {
                     'microsoft_xdr' {
+                        Write-Verbose "Processing for microsoft_xdr pipeline"
                         $requiredDataConnectors = @(@{connectorId = 'MicrosoftThreatProtection'; dataTypes = @($table)})
                         $query += (Update-QueryWithEntityMappingColumns -TableName $table)
                         $entityMappings = New-EntityMappings -TableName $table
@@ -229,7 +253,7 @@ function Set-AzSentinelContentTemplateFromSigmaRule {
                 if ($null -ne $requiredDataConnectors) {$ArmParams.Add('RequiredDataConnectors', $requiredDataConnectors)}
                 if ($null -ne $entityMappings) {$ArmParams.Add('EntityMappings', $entityMappings)}
 
-                $armTemplate = Build-AzSetinelAlertRuleTemplateArmDocument @ArmParams
+                $armTemplate = Build-AzSentinelAlertRuleTemplateArmDocument @ArmParams
                 $ApiParams.Add('ArmTemplate', $armTemplate)
 
                 try {

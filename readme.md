@@ -26,6 +26,7 @@ Supports the following sigma [logsource](https://github.com/SigmaHQ/sigma-specif
 
 ## Dependencies
 Run on a host with the following installed
+- [PowerShell Core](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
 - Modules: [powershell-yaml](https://github.com/cloudbase/powershell-yaml), [Az.SecurityInsights](https://learn.microsoft.com/en-us/powershell/module/az.securityinsights/?view=azps-12.0.0), [AzExpression](https://github.com/SimonWahlin/AzExpression)
 - [Python](https://www.python.org/downloads/)
 - [sigma-cli](https://github.com/SigmaHQ/sigma-cli)

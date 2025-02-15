@@ -6,7 +6,7 @@
     RequiredModules = @()
 
     # Version number of this module.
-    ModuleVersion = '1.2.0'
+    ModuleVersion = '1.2.1'
 
     # ID used to uniquely identify this module
     GUID = '7bcfd6aa-172f-479f-be46-59fd3a9e35e3'
